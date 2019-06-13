@@ -2,9 +2,9 @@ version: '2.1'
 
 services:
   bitrix:
-    image: trydirect/bitrix24:latest
-    container_name: bitrix
-    build: build/apache
+    image: trydirect/bitrix24:enterprise
+    container_name: bitrix24_enterprise
+    build: build
     ports:
       - 80:80
     volumes:
@@ -22,7 +22,7 @@ services:
 
   db:
     image: mysql:5.7
-    container_name: bitrix_db
+    container_name: bitrix24_enterprise_db
     env_file:
       - .env
 #    volumes:

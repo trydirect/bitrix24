@@ -15,15 +15,15 @@ ENV LC_ALL en_US.UTF-8
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd mysqli mcrypt pdo pdo_mysql mbstring tokenizer iconv
 RUN a2enmod rewrite
-RUN usermod -a -G www-data bitrix
+RUN usermod -a -G bitrix www-data
 
 COPY php/php.ini /usr/local/etc/php/conf.d/
 COPY encoding.conf /etc/apache2/conf-enabled/encoding.conf
-COPY bitrix.conf /etc/apache2/sites-enabled/000-default.conf
+COPY apache2/bitrix.conf /etc/apache2/sites-enabled/000-default.conf
 COPY supervisord/apache.conf /etc/supervisor/conf.d/apache.conf
 COPY cron/bitrix /etc/crontab
 
-RUN curl -o /usr/src/app.tar.gz -L http://www.1c-bitrix.ru/download/standard_encode_php5.tar.gz
+RUN curl -o /usr/src/app.tar.gz -L http://www.bitrixsoft.com/download/portal/en_bitrix24_encode.tar.gz
 WORKDIR /var/www/html
 RUN tar -xf /usr/src/app.tar.gz
 RUN chown -R bitrix.bitrix /var/www/html && chmod g+w -R /var/www/html

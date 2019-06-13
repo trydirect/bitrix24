@@ -1,0 +1,1 @@
+*/2 * * * * /usr/local/bin/php -f /var/www/html/bitrix/modules/main/tools/cron_events.php && touch /var/www/html/bitrix/modules/main/tools/cron_events_last
