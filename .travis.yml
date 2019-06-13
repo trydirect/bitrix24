@@ -4,6 +4,9 @@ python:
 env:
   matrix:
   - DOCKER_CONTENT_TRUST=0
+  global:
+  - secure: Emgumir1oQ/zcl4JRpu4k4NwdtIlVOB/+JuMBZbY/3gcQZczE+ocDCkWPr6ElWDjzkgrLffPbJlxzXJgaWGaiIg+/PJS3NdeLu5JvyxNnkPZJTtgBLT0FBY5bcDwm7b3iQhtjt7L2zKNLsRj/X7rM1xhb8F8KOkswSmhfjS0jlNdGExckfcr/zD7dnqhrWtvy9zKcQ+nzTyYVsSMzzBWWddn/PjOxt6wfbsAwudmkVx4LJPFJ4qxVZ8tfo6GJVeyGRzJ0ogEEgvFjIYhmRRZzaiDg8TAVfkkCRjK3axzUKPhatjEGuymD7ZIVFQ8fVwWdFHIOhMifWouWBH2tdGWTYwW4cSCCYoyuki8YBw4Gh/AdK6edV2gZuc/B77uR3hibQf7y05NkW7EVoDmPscSWFvzSF4qWdpSPEnDLA3MfH5Wv5Jgz9ViTe1bfZKNqNctalPdN0UIJBoPBiySbADx3pBvjsAskRRixgBe6YvavTw129pie99lOUpyN/gwWpxoPdv4sz2PQow2aRP/CG+tI0ZbkMziIm6bf7YEKcjKcjdyTgJPgj3AtmTRtH83S2Y8vTgwIELyziABfOp9uJ29qUCXiA9wnJkQLytjd7YhfMsfa+bP5ijlP8sYlZYrLiDPzF/Akf+ZyIvPK11QK3aPtuvFdzCR5H1wSg3dV8OwKc4=
+  - secure: nhSCaCmqWVn9kh0yjboNSm/6ShutGNm3Ds6pqqFyFCqiPaJRoOQsW3NjLjrXZVWFQD3Q8b8r2dTGiqW2szMUtgSccHmrVOOHzXS50pybn9B2Z3Jf8sm5mc/+1K1oxLbb+09tSl1RCZnQ202RkZqTtifWvgqETcgQLuniZqLuoV1Knri9OUTLttJJbKYJfLVKHymxyhehhX9lJRFPoU1E3uUA0T0ZHWcf0cOH+ROImJtCEqi9Q3cO0Rt7XeCBXYU2217CucFRxCtcBjhsPpo3Frn26l1EpSEBiFNePQ1KGOhn5H3xT3n8AXgLKzrcRDrSUiq2ydEI9hQIeGhQEGsIpLx7ghIb/8hebbUcHkneqOdisbz053oSQqwZTecjojPOPvAlelDP9nzsP65ncbwv7oXrg/juIxH+jY8gFlTqoLjzd6Px+w7Vx+9MSYcJ6BdweWC5WAk0SVEdBaJTzrkqUql0sQK25NsJboUJD9UdNSnbensf/TfpDF07kmt8sN82ooCZ7AB8ZGYt97FfmtlRuGVIXTa7LPw8FTRey4xQOAu4kBvzbWJ1IMT1Sh0PAfyFosW0oI3nT/0A1NsLIccdTtzDnEDoOdXJ6yGkU9sNLfVoL70A+sX7ctT0/byqp9C/as2y0V8eGHUaeFVzKFZAqztYP+vBAksMrH02wUm6dR0=
 services:
 - docker
 before_install:
@@ -13,32 +16,28 @@ before_install:
 - docker-compose --version
 jobs:
   include:
-    - stage: build_business
-    - script:
-      - cd $TRAVIS_BUILD_DIR/v01/business
-      - docker-compose -f docker-compose.yml up -d --build
-      - docker-compose -f docker-compose.yml ps
-    - script:
-      - cd $TRAVIS_BUILD_DIR/v01/enterprise
-      - docker-compose -f docker-compose.yml up -d --build
-      - docker-compose -f docker-compose.yml ps
-    - stage: test
-    - script:
-      - bash ./.travis/linters.sh
-      - python tests.py
-    - stage: deploy
-    - script:
-      - cd $TRAVIS_BUILD_DIR/v01/business
-      - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-      - docker images
-      - docker push trydirect/bitrix24:business
-      - docker push trydirect/bitrix24:enterprise
-      -
-before_script:
-- pip install requests
-- pip install docker
-- cd $TRAVIS_BUILD_DIR
--
+  - stage: build_business
+  - script:
+    - cd $TRAVIS_BUILD_DIR/v01/business
+    - docker-compose -f docker-compose.yml up -d --build
+    - docker-compose -f docker-compose.yml ps
+  - script:
+    - cd $TRAVIS_BUILD_DIR/v01/enterprise
+    - docker-compose -f docker-compose.yml up -d --build
+    - docker-compose -f docker-compose.yml ps
+  - stage: test
+  - script:
+    - cd $TRAVIS_BUILD_DIR
+    - bash ./.travis/linters.sh
+    - pip install requests
+    - pip install docker
+    - python tests.py
+  - stage: deploy
+  - script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker images
+    - docker push trydirect/bitrix24:business
+    - docker push trydirect/bitrix24:enterprise
 notifications:
   slack:
     rooms:
