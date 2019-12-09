@@ -7,9 +7,6 @@ RUN rm /etc/apt/preferences.d/no-debian-php
 RUN apt-get update && apt-get install -y locales zip unzip php7.0-zip php7.0-xml php7.0-ldap php7.0-mbstring php7.0-xmlrpc php7.0-gd php7.0-mysql php7.0-fpm \
     php-zip php-xml php-ldap php-mbstring php-xmlrpc php-gd php-mysql php-fpm
 
-RUN rm /etc/apt/preferences.d/no-debian-php
-RUN apt-get update && apt-get install -y locales zip unzip php7.0-zip php7.0-xml php7.0-ldap php7.0-mbstring php7.0-xmlrpc php7.0-gd php7.0-mysql \
-    php-zip php-xml php-ldap php-mbstring php-xmlrpc php-gd php-mysql
 
 COPY locale.gen /etc/locale.gen
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen en_US.UTF-8
@@ -19,7 +16,6 @@ ENV LC_ALL en_US.UTF-8
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd mysqli mcrypt pdo pdo_mysql mbstring tokenizer iconv zip opcache
 RUN a2enmod rewrite
-#RUN a2enconf php7.0-fpm
 RUN usermod -a -G bitrix www-data
 
 COPY php/php.ini /usr/local/etc/php/conf.d/
