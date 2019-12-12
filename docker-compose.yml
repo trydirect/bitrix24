@@ -1,0 +1,89 @@
+version: '2'
+
+volumes:
+  site:
+  db:
+    driver: local
+
+
+services:
+    php:
+        build: ./${PHP_VERSION}
+        container_name: php
+        volumes_from:
+            - source
+        ports:
+            - '${INTERFACE}:9000:9000'
+        links:
+            - mysql
+            - memcached
+        networks:
+            - bitrix
+        restart: always
+    web_server:
+        build: ./${WEB_SERVER_TYPE}
+        container_name: webserver
+        depends_on:
+            - source
+        volumes_from:
+            - source
+        ports:
+            - '${INTERFACE}:80:80'
+            - '${INTERFACE}:443:443'
+            - '${INTERFACE}:8893:8893'
+            - '${INTERFACE}:8894:8894'
+            - '${INTERFACE}:8895:8895'
+        links:
+            - php
+        networks: 
+            - bitrix
+        restart: always
+
+    mysql:
+        build: ./mysql
+        container_name: mysql
+        volumes_from:
+            - source
+        ports:
+            - '${INTERFACE}:3306:3306'
+        environment:
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        command: mysqld --sql-mode=""
+        networks:
+            - bitrix
+        restart: always
+    memcached:
+        image: memcached:1.5-alpine
+        container_name: memcached
+        volumes_from:
+            - source
+        ports:
+            - '${INTERFACE}:11211:11211'
+        networks:
+            - bitrix
+        restart: always
+    source:
+        image: alpine:latest
+        container_name: source
+        volumes:
+            - ./logs/${WEB_SERVER_TYPE}:/var/log/${WEB_SERVER_TYPE}
+            - ./logs/php:/var/log/php
+            - ./logs/mysql:/var/log/mysql
+            - ./logs/memcached:/var/log/memcached
+            - db:/var/lib/mysql
+            - ./data/memcached:/var/lib/memcached
+            - ./www/html:/var/www/html
+            - ${SITE_PATH}:/var/www/bitrix
+            - /etc/localtime:/etc/localtime/:ro
+        networks:
+            - bitrix
+networks:
+    bitrix:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 10.100.0.0/24
